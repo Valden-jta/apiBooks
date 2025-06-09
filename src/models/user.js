@@ -12,6 +12,16 @@ class User {
   }
 }
 
+function userInfo(user) {
+  return {
+    id: user.id,
+    name: user.name,
+    last_name: user.last_name,
+    email: user.email,
+    photo: user.photo
+  }
+}
+
 // encriptacion de contraseña con bcrypt
 async function hashPassword(name, password) {
   try {
@@ -24,5 +34,14 @@ async function hashPassword(name, password) {
   }
 }
 
+async function comparePassword(plainPassword, hash) {
+  try {
+    const compare = await bcrypt.compare(plainPassword,hash);
+    return compare
+  }
+  catch (err) {
+    throw new Error("Hubo un error al recuperar la contraseña: " + err.message);
+  }
+}
 
-module.exports = { User, hashPassword };
+module.exports = { User, userInfo, hashPassword, comparePassword };
