@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Javier",
+    "last_name": "San Silvestre",
+    "email": "javier.ssilvestre@email.com",
+    "photo": "https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    "password": "javierPassword"
+  },
+  {
+    "name": "Lucía",
+    "last_name": "García",
+    "email": "lucia.garcia@email.com",
+    "photo": "https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "password": "luciaPassword"
+  },
+  {
+    "name": "Carlos",
+    "last_name": "Martínez",
+    "email": "carlos.martinez@email.com",
+    "photo": "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "password": "carlosPassword"
+  },
+  {
+    "name": "Marta",
+    "last_name": "López",
+    "email": "marta.lopez@email.com",
+    "photo": "https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "password": "martaPassword"
+  },
+  {
+    "name": "David",
+    "last_name": "Ruiz",
+    "email": "david.ruiz@email.com",
+    "photo": "https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "password": "davidPassword"
+  }
+]
