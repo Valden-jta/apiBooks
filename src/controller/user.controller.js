@@ -17,7 +17,7 @@ PUT         =   UPDATE
 DELETE      =   DELETE
 */
 
-// * REGISTER -> Añadir nuevo usuario a la DB
+// * ------------ REGISTER -> Añadir nuevo usuario a la DB
 const postUser = async (req, res) => {
   try {
     // Validación
@@ -69,7 +69,7 @@ const postUser = async (req, res) => {
   }
 };
 
-// * LOGIN -> Comprobar que existe un usuario (email y password) en la DB, retornar todos los datos menos la contraseña o notificar cambios incorrectos
+// * ------------ LOGIN -> Comprobar que existe un usuario (email y password) en la DB, retornar todos los datos menos la contraseña o notificar cambios incorrectos
 const getUser = async (req, res) => {
   try {
     if (!req.body.email || !req.body.password) {
