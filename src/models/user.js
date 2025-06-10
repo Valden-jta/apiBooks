@@ -23,11 +23,11 @@ function userInfo(user) {
 }
 
 // encriptacion de contraseña con bcrypt
-async function hashPassword(name, password) {
+async function hashPassword(password) {
   try {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
-    console.log("Contraseña encriptada: " + JSON.stringify({ name, password, hash }));
+    console.log("Contraseña encriptada: " + JSON.stringify({ password, hash }));
     return hash;
   } catch (err) {
     throw new Error("Hubo un error al encriptar la contraseña: " + err.message);

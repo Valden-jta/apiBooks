@@ -1,14 +1,16 @@
 //?_________  Imports _________\\
 const { pool } = require("../database.js");
-const { User, userInfo, hashPassword, comparePassword } = require("../models/user.js");
+const {
+  User,
+  userInfo,
+  hashPassword,
+  comparePassword,
+} = require("../models/user.js");
 
 //?_________ Datos _________\\
 
-let user;
-
 //?_________ Funciones _________\\
 /*
-
 API VERBS   =   CRUD
 ------------------------
 GET         =   SELECT
@@ -41,7 +43,7 @@ const postUser = async (req, res) => {
       req.body.photo,
       req.body.password
     );
-    newUser.password = await hashPassword(newUser.name, newUser.password);
+    newUser.password = await hashPassword(newUser.password);
     console.log("Usuario a insertar: ", newUser);
 
     // Insertar user en la DB
@@ -106,8 +108,87 @@ const getUser = async (req, res) => {
   }
 };
 
-// TODO: ACTUALIZAR -> actualiza la información del usuario en la DB
-function putUser(req, res) {}
+//  *------------ ACTUALIZAR -> actualiza la información del usuario en la DB
+const putUser = async (req, res) => {
+  try {
+    // En el front de profile no se ve, pero el id estará almecenado los datos de usuario
+    let updatedUser = {
+      name: req.body.name,
+      last_name: req.body.last_name,
+      email: req.body.email,
+      photo: req.body.photo,
+    };
+    let newPassword = req.body.newPassword;
+    let password = req.body.password;
+
+    // Validacion de las credenciales
+    let sql = `SELECT password FROM user WHERE id_user = ?`;
+    let param = [req.body.id_user];
+
+    let [userSearch] = await pool.query(sql, param);
+    // Autenticar contraseña actual
+    if (userSearch.length) {
+      let passwordCheck = await comparePassword(
+        password,
+        userSearch[0].password
+      );
+      if (!passwordCheck) {
+        return res.status(401).json({ message: "la contraseña es incorrecta" });
+      }
+
+      // Encriptar contraseña nueva y añadrila a updatedUser
+      if (newPassword) {
+        let hashedPassword = await hashPassword(newPassword);
+        updatedUser.password = hashedPassword;
+        console.log("Contraseña actualizada");
+      }
+
+    } else {
+      return res
+        .status(404)
+        .json({ message: "No existe ningún usuario con ese Id" });
+    }
+
+    // Preparar la consulta de forma dinámica
+    let preparedStmt = {
+      sql: [],
+      param: [],
+    };
+
+    for (let attr in updatedUser) {
+      if (updatedUser[attr]) {
+        preparedStmt.sql.push(`${attr} = ?`);
+        preparedStmt.param.push(updatedUser[attr]);
+      }
+    }
+
+    if (!preparedStmt.sql.length) {
+      return res.status(400).json({ message: "No hay campos para actualizar" });
+    }
+
+    sql = `UPDATE user SET ${preparedStmt.sql.join(", ")}
+    WHERE id_user = ?;`;
+    preparedStmt.param.push(req.body.id_user);
+    param = preparedStmt.param;
+
+    let [result] = await pool.query(sql, param);
+    if (result.affectedRows > 0) {
+      res.status(200).json({
+        message:
+          "Datos de usuario modificados correctamente. Registros modificados: " +
+          result.affectedRows,
+        data: result,
+      });
+      console.log("datos actualizados correctamente");
+    } else {
+      return res
+        .status(404)
+        .json({ message: "No existe ningún usuario con ese id" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 //?_________ Exports _________\\
 
