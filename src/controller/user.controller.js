@@ -95,7 +95,58 @@ const postUser = async (req, res) => {
   }
 };
 
-//  *------------ ACTUALIZAR -> actualiza la información del usuario en la DB
+//  * ------------ LOGIN -> Comprobar que existe un usuario (email y password) en la DB, retornar todos los datos menos la contraseña o notificar cambios incorrectos
+const getUser = async (req, res) => {
+  try {
+    if (!req.body.email || !req.body.password) {
+      return res.status(422).json({
+        error: true,
+        code: 422,
+        message: "Todos los campos son obligatorios",
+      });
+    }
+
+    let sql = `SELECT * FROM user where email = ?`;
+    let param = [req.body.email];
+
+    let [result] = await pool.query(sql, param);
+    if (!result.length) {
+      res.status(404).json({
+        error: true,
+        code: 404,
+        message: "No existe ningún usuario con ese email",
+      });
+    } else {
+      let passwordCheck = await comparePassword(
+        req.body.password,
+        result[0].password
+      );
+      if (passwordCheck) {
+        let userData = userInfo(result[0]);
+        res.status(200).json({
+          error: false,
+          code: 200,
+          message: "Login correcto",
+          data: userData,
+        });
+      } else {
+        res.status(404).json({
+          error: true,
+          code: 404,
+          message: "La contraseña es incorrecta",
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({
+      error: true,
+      code: 500,
+      message: error.message,
+    });
+  }
+};
+
+// * ------------ ACTUALIZAR -> actualiza la información del usuario en la DB
 const putUser = async (req, res) => {
   try {
     // En el front de profile no se ve, pero el id estará almecenado los datos de usuario
@@ -201,4 +252,3 @@ module.exports = {
   postUser,
   putUser,
 };
-
