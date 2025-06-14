@@ -75,12 +75,23 @@ const postUser = async (req, res) => {
 
     if (result.insertId)
       res.status(201).json({
+        error: false,
+        code: 201,
         message:
           "Usuario creado correctamente. Id de usuario: " + result.insertId,
       });
-    else res.status(500).json({ message: "No se pudo crear el usuario" });
+    else
+      res.status(500).json({
+        error: true,
+        code: 500,
+        message: "No se pudo crear el usuario",
+      });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      error: true,
+      code: 500,
+      message: error.message,
+    });
   }
 };
 
@@ -109,7 +120,11 @@ const putUser = async (req, res) => {
         userSearch[0].password
       );
       if (!passwordCheck) {
-        return res.status(401).json({ message: "la contraseña es incorrecta" });
+        return res.status(401).json({
+          error: true,
+          code: 401,
+          message: "la contraseña es incorrecta",
+        });
       }
 
       // Encriptar contraseña nueva y añadrila a updatedUser
@@ -118,11 +133,12 @@ const putUser = async (req, res) => {
         updatedUser.password = hashedPassword;
         console.log("Contraseña actualizada");
       }
-
     } else {
-      return res
-        .status(404)
-        .json({ message: "No existe ningún usuario con ese Id" });
+      return res.status(404).json({
+        error: true,
+        code: 404,
+        message: "No existe ningún usuario con ese Id",
+      });
     }
 
     // Preparar la consulta de forma dinámica
@@ -139,7 +155,11 @@ const putUser = async (req, res) => {
     }
 
     if (!preparedStmt.sql.length) {
-      return res.status(400).json({ message: "No hay campos para actualizar" });
+      return res.status(400).json({
+        error: true,
+        code: 400,
+        message: "No hay campos para actualizar",
+      });
     }
 
     sql = `UPDATE user SET ${preparedStmt.sql.join(", ")}
@@ -150,6 +170,8 @@ const putUser = async (req, res) => {
     let [result] = await pool.query(sql, param);
     if (result.affectedRows > 0) {
       res.status(200).json({
+        error: false,
+        code: 200,
         message:
           "Datos de usuario modificados correctamente. Registros modificados: " +
           result.affectedRows,
@@ -157,12 +179,18 @@ const putUser = async (req, res) => {
       });
       console.log("datos actualizados correctamente");
     } else {
-      return res
-        .status(404)
-        .json({ message: "No existe ningún usuario con ese id" });
+      return res.status(404).json({
+        error: true,
+        code: 404,
+        message: "No existe ningún usuario con ese id",
+      });
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      error: true,
+      code: 500,
+      message: error.message,
+    });
   }
 };
 
@@ -173,3 +201,4 @@ module.exports = {
   postUser,
   putUser,
 };
+
