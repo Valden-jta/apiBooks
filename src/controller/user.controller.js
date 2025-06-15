@@ -216,13 +216,21 @@ const putUser = async (req, res) => {
 
     let [result] = await pool.query(sql, param);
     if (result.affectedRows > 0) {
+      // Obtener el usuario actualizado
+      const [UpdatedUser] = await pool.query(
+        "SELECT id_user, name, last_name, email, photo FROM user WHERE id_user = ?",
+        [updatedUser.id_user]
+      );
       res.status(200).json({
         error: false,
         code: 200,
         message:
           "Datos de usuario modificados correctamente. Registros modificados: " +
           result.affectedRows,
-        data: result,
+        data: {
+          updateResult: result,
+          user: UpdatedUser[0], // Usuario actualizado
+        },
       });
       console.log("datos actualizados correctamente");
     } else {
@@ -231,6 +239,8 @@ const putUser = async (req, res) => {
         code: 404,
         message: "No existe ningún usuario con ese id",
       });
+
+      //Devolver el usuario actualizado
     }
   } catch (error) {
     res.status(500).json({
