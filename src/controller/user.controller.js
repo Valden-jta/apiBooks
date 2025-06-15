@@ -56,7 +56,7 @@ const postUser = async (req, res) => {
         message: "El email ya está registrado",
       });
     }
-    newUser.password = await hashPassword(newUser.name, newUser.password);
+    newUser.password = await hashPassword(newUser.password);
     console.log("Usuario a insertar: ", newUser);
 
     // Insertar user en la DB
@@ -149,15 +149,18 @@ const getUser = async (req, res) => {
 // * ------------ ACTUALIZAR -> actualiza la información del usuario en la DB
 const putUser = async (req, res) => {
   try {
-    // En el front de profile no se ve, pero el id estará almecenado los datos de usuario
+    console.log(req.body);
+    console.log(req.body.password);
+    // En el front de profile no se ve, pero el id estará almecenado en los datos de usuario
     let updatedUser = {
+      id_user: req.body.id_user,
       name: req.body.name,
       last_name: req.body.last_name,
       email: req.body.email,
       photo: req.body.photo,
+      password: req.body.password,
     };
-    let newPassword = req.body.newPassword;
-    let password = req.body.password;
+    let password = req.body.confirmPassword;
 
     // Validacion de las credenciales
     let sql = `SELECT password FROM user WHERE id_user = ?`;
@@ -177,12 +180,13 @@ const putUser = async (req, res) => {
           message: "la contraseña es incorrecta",
         });
       }
-
-      // Encriptar contraseña nueva y añadrila a updatedUser
-      if (newPassword) {
-        let hashedPassword = await hashPassword(newPassword);
-        updatedUser.password = hashedPassword;
+      // Encriptar contraseña nueva( si ha cambiado) y añadrila a updatedUser
+      if (updatedUser.password && updatedUser.password !== "") {
+        updatedUser.password = await hashPassword(updatedUser.password);
         console.log("Contraseña actualizada");
+      } else {
+        // Si no hay nueva contraseña, manten la anterior
+        updatedUser.password = userSearch[0].password;
       }
     } else {
       return res.status(404).json({
@@ -193,30 +197,22 @@ const putUser = async (req, res) => {
     }
 
     // Preparar la consulta de forma dinámica
-    let preparedStmt = {
-      sql: [],
-      param: [],
-    };
+    sql = `UPDATE user SET 
+              name = ?,
+              last_name = ?,
+              email = ?,
+              photo = ?,
+              password = ?
+            WHERE id_user = ?;`;
 
-    for (let attr in updatedUser) {
-      if (updatedUser[attr]) {
-        preparedStmt.sql.push(`${attr} = ?`);
-        preparedStmt.param.push(updatedUser[attr]);
-      }
-    }
-
-    if (!preparedStmt.sql.length) {
-      return res.status(400).json({
-        error: true,
-        code: 400,
-        message: "No hay campos para actualizar",
-      });
-    }
-
-    sql = `UPDATE user SET ${preparedStmt.sql.join(", ")}
-    WHERE id_user = ?;`;
-    preparedStmt.param.push(req.body.id_user);
-    param = preparedStmt.param;
+    param = [
+      updatedUser.name,
+      updatedUser.last_name,
+      updatedUser.email,
+      updatedUser.photo,
+      updatedUser.password,
+      updatedUser.id_user,
+    ];
 
     let [result] = await pool.query(sql, param);
     if (result.affectedRows > 0) {
