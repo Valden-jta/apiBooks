@@ -14,12 +14,12 @@ class User {
 
 function userInfo(user) {
   return {
-    id: user.id,
+    id_user: user.id_user,
     name: user.name,
     last_name: user.last_name,
     email: user.email,
-    photo: user.photo
-  }
+    photo: user.photo,
+  };
 }
 
 // encriptacion de contraseña con bcrypt
@@ -36,10 +36,9 @@ async function hashPassword(password) {
 
 async function comparePassword(plainPassword, hash) {
   try {
-    const compare = await bcrypt.compare(plainPassword,hash);
-    return compare
-  }
-  catch (err) {
+    const compare = await bcrypt.compare(plainPassword, hash);
+    return compare;
+  } catch (err) {
     throw new Error("Hubo un error al recuperar la contraseña: " + err.message);
   }
 }
