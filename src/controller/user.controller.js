@@ -81,13 +81,13 @@ const postUser = async (req, res) => {
           "Usuario creado correctamente. Id de usuario: " + result.insertId,
       });
     else
-      res.status(500).json({
+      return res.status(500).json({
         error: true,
         code: 500,
         message: "No se pudo crear el usuario",
       });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: true,
       code: 500,
       message: error.message,
@@ -111,7 +111,7 @@ const getUser = async (req, res) => {
 
     let [result] = await pool.query(sql, param);
     if (!result.length) {
-      res.status(404).json({
+      return res.status(404).json({
         error: true,
         code: 404,
         message: "No existe ningún usuario con ese email",
@@ -130,7 +130,7 @@ const getUser = async (req, res) => {
           data: userData,
         });
       } else {
-        res.status(404).json({
+        return res.status(404).json({
           error: true,
           code: 404,
           message: "La contraseña es incorrecta",
@@ -138,7 +138,7 @@ const getUser = async (req, res) => {
       }
     }
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: true,
       code: 500,
       message: error.message,
@@ -243,7 +243,7 @@ const putUser = async (req, res) => {
       //Devolver el usuario actualizado
     }
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error: true,
       code: 500,
       message: error.message,

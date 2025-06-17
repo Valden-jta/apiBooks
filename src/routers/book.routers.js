@@ -8,11 +8,10 @@ const router = Router();
 //?_________  rutas y metodos _________\\ 
 const bookCtrl = require('../controller/book.controller'); 
 
-router.get('/usuario/', bookCtrl.getBooks);
-router.get('/usuario/', bookCtrl.getBook);
-router.post('/usuario', bookCtrl.postBook);
-router.put('/usuario', bookCtrl.putBook);
-router.delete('/usuario', bookCtrl.deleteBook);
+router.get('/books', bookCtrl.getBooks);
+router.post('/books', bookCtrl.postBook);
+router.put('/books', bookCtrl.putBook);
+router.delete('/books', bookCtrl.deleteBook);
 
 //?_________  Exports _________\\ 
 module.exports = router;
