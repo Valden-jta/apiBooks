@@ -1,5 +1,3 @@
-// *---------------------- template ---------------------- *\\
-
 //?_________  Imports _________\\ 
 const {Router} = require('express');                        
 const router = Router();
