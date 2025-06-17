@@ -102,13 +102,13 @@ const postBook = async (req, res) => {
       req.body.title,
       req.body.type,
       req.body.author,
-      parseFloat(req.body.price),
+      req.body.price,
       req.body.photo
     );
     let sql;
     let param = [];
 
-    //Comporbar que todos los campos(menos id_book llegan con datos)
+    //Comporbar que todos los campos(menos id_book) llegan con datos
     for (let field in newBook) {
       if (
         field !== "id_book" &&
@@ -121,7 +121,7 @@ const postBook = async (req, res) => {
         });
       }
     }
-   // Comporbar si existe el usuario
+    // Comporbar si existe el usuario
     sql = "SELECT COUNT(*) AS total FROM user WHERE id_user = ?";
     let [userSearch] = await pool.query(sql, [newBook.id_user]);
     if (userSearch[0].total === 0) {
@@ -168,20 +168,20 @@ const postBook = async (req, res) => {
     ];
     let [result] = await pool.query(sql, param);
     if (result.affectedRows === 0) {
-  return res.status(400).json({
-    error: true,
-    code: 400,
-    message: "No se pudo añadir el libro",
-    data: result,
-  });
-} else {
-  return res.status(200).json({
-    error: false,
-    code: 200,
-    message: "Libro añadido con éxito",
-    data: result,
-  });
-}
+      return res.status(400).json({
+        error: true,
+        code: 400,
+        message: "No se pudo añadir el libro",
+        data: result,
+      });
+    } else {
+      return res.status(200).json({
+        error: false,
+        code: 200,
+        message: "Libro añadido con éxito",
+        data: result,
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       error: true,
@@ -191,11 +191,145 @@ const postBook = async (req, res) => {
   }
 };
 
-//TODO: modificar un libro de la DB
-const putBook = async (req, res) => {};
+// * ------------PUTBOOK -> modificar un libro de la DB
+const putBook = async (req, res) => {
+  try {
+    let updatedBook = new Book(
+      req.body.id_book,
+      req.body.id_user,
+      req.body.title,
+      req.body.type,
+      req.body.author,
+      req.body.price,
+      req.body.photo
+    );
+    let sql;
+    let param = [];
+    //Comporbar que todos los campos llegan con datos
+    for (let field in updatedBook) {
+      if (updatedBook[field] == null || updatedBook[field] === "") {
+        return res.status(400).json({
+          error: true,
+          code: 400,
+          message: "Petición mal formulada. Se deben incluir todos los campos",
+        });
+      }
+    }
 
-//TODO: eliminar un libro de la DB
-const deleteBook = async (req, res) => {};
+    // Comporbar si existe el libro
+    sql = `SELECT * FROM book WHERE id_book = ? AND id_user = ?`;
+    param = [updatedBook.id_book, updatedBook.id_user];
+    let [getOne] = await pool.query(sql, param);
+    if (getOne.length === 0) {
+      return res.status(404).json({
+        error: true,
+        code: 404,
+        message: "El usuario no tiene ese libro",
+        data: [],
+      });
+    }
+
+    // Actualizar el libro
+    sql = `UPDATE book SET title = ?, type = ?, author = ?, price = ?, photo = ? WHERE id_book = ? AND id_user = ?`;
+    param = [
+      updatedBook.title,
+      updatedBook.type,
+      updatedBook.author,
+      updatedBook.price,
+      updatedBook.photo,
+      updatedBook.id_book,
+      updatedBook.id_user,
+    ];
+    let [result] = await pool.query(sql, param);
+
+    if (result.affectedRows === 0) {
+      return res.status(400).json({
+        error: true,
+        code: 400,
+        message: "No se pudo actualizar el libro",
+      });
+    } else {
+      return res.status(200).json({
+        error: false,
+        code: 200,
+        message: "Libro actualizado con éxito",
+        data: result,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      code: 500,
+      message: error.message,
+    });
+  }
+};
+
+// * ------------ DELETEBOOK -> eliminar un libro de la DB
+const deleteBook = async (req, res) => {
+  try {
+    let id_user = req.body.id_user;
+    let id_book = req.body.id_book;
+    let sql;
+    let param = [];
+
+    //Comprobar si se recibe id_user
+    if (!id_user) {
+      return res.status(400).json({
+        error: true,
+        code: 400,
+        message: "Petición mal formulada. Se debe incluir el ID de usuario",
+      });
+    }
+    // Comporbar si existe el usuario
+    sql = "SELECT COUNT(*) AS total FROM user WHERE id_user = ?";
+    let [userSearch] = await pool.query(sql, [id_user]);
+    if (userSearch[0].total === 0) {
+      // No existe el usuario
+      return res.status(404).json({
+        error: true,
+        code: 404,
+        message: "No existe ningún usuario con ese id",
+      });
+    }
+
+    // Comporbar si existe el libro
+    sql = `SELECT * FROM book WHERE id_book = ? AND id_user = ?`;
+    param = [id_book, id_user];
+    let [getOne] = await pool.query(sql, param);
+    if (getOne.length === 0) {
+      return res.status(404).json({
+        error: true,
+        code: 404,
+        message: "El usuario no tiene ese libro",
+        data: [],
+      });
+    } else {
+      sql = "DELETE FROM book WHERE id_book = ? AND id_user = ?";
+      let [result] = await pool.query(sql, param);
+      if (result.affectedRows > 0) {
+        res.status(200).json({
+          error: false,
+          code: 200,
+          message: "Libro eliminado correctamente",
+          data: result,
+        });
+      } else {
+        res.status(400).json({
+          error: true,
+          code: 400,
+          message: "No se pudo eliminar el libro",
+        });
+      }
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      code: 500,
+      message: error.message,
+    });
+  }
+};
 
 //?_________ Exports _________\\
 
