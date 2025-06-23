@@ -29,7 +29,7 @@ DELETE      =   DELETE
 
 // * ------------ GETBOOKS ->
 
-const getBooks = async (req, res) => {
+const getBook = async (req, res) => {
   try {
     let id_user = req.query.id_user;
     let id_book = req.query.id_book;
@@ -179,7 +179,7 @@ const postBook = async (req, res) => {
         error: false,
         code: 200,
         message: "Libro añadido con éxito",
-        data: result,
+        data: {result, newBook}
       });
     }
   } catch (error) {
@@ -334,7 +334,7 @@ const deleteBook = async (req, res) => {
 //?_________ Exports _________\\
 
 module.exports = {
-  getBooks,
+  getBook,
   postBook,
   putBook,
   deleteBook,
