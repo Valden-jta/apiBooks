@@ -2,23 +2,6 @@
 
 API REST para acceder y gestionar información de libros y usuarios desde la aplicación **appBooks**.
 
-En este mismo repositorio hay una base de datos de muestra que puedes instalar en tu equipo (no te olvides de introducir tus credenciales en el fichero database.js):
-```js
-.createPool({
-    // Parámetros de conexion del usuario
-    host: "",
-    user: "",
-    password: "",
-    database: "",
-    // Parámetros de configuración de las opciones de conexion
-    waitForConnections: true,
-    connectionLimit: 10,
-    maxIdle: 10,
-    idleTimeout: 6000,
-    queueLimit: 0,
-  })
-```
-
 ---
 
 ## 1. SetUp
