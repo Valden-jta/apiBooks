@@ -26,6 +26,11 @@ app.use(express.json());
 // Routing
 app.use(userRouters);
 app.use(bookRouters);
+// Endpoint de entrada
+// Endpoint de entrada (root)
+app.get("/", (req, res) => {
+  res.json({ message: "API de MyBooks funcionando correctamente" });
+});
 app.use((req, res, next) => {
   res
   .status(404)
