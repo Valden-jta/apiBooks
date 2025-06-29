@@ -2,6 +2,7 @@
 
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 
 // Endpoints
 const userRouters = require("./routers/user.routers");
